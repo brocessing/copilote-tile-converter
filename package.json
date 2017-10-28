@@ -1,0 +1,22 @@
+{
+  "name": "copilote-tile-converter",
+  "version": "0.1.0",
+  "description": "generate copilote road tiles from a png",
+  "main": "index.js",
+  "bin": {
+    "copit": "bin/index.js"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "RNO",
+  "license": "MIT",
+  "private": false,
+  "dependencies": {
+    "fs-extra": "^4.0.2",
+    "image-size": "^0.6.1",
+    "minimist": "^1.2.0",
+    "png-js": "^0.1.1"
+  },
+  "devDependencies": {}
+}
