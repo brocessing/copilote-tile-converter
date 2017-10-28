@@ -17,6 +17,7 @@ module.exports = function (tiles_raw) {
         let type = findType(neighbors)
 
         tiles[x + '.' + y] = {
+          p: [x, y],
           n: neighbors,
           t: type,
           r: calcRotation(type, neighbors)
