@@ -12,6 +12,15 @@ $ npm i -g brocessing/copilote-tile-converter
 
 <br>
 
+## Table of correspondance
+
+| hex | type |
+| :--- | :--- |
+| `#000000` | road |
+| `#FF0000` | props |
+
+<br>
+
 ## Usage
 ```
 copit

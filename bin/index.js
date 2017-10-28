@@ -25,13 +25,27 @@ PNG.decode(args.input, pixels => {
     pixels.splice(0, 1)
   }
 
-  let bytes = colors.map(c => +!c.find(h => h !== 0))
+  let roads = colors.map(c => arrEq(c, [0, 0, 0]))
+  let roads_raw = []
+  while (roads.length > 0) roads_raw.push(roads.splice(0, width))
 
-  let tiles_raw = []
-  while (bytes.length > 0) tiles_raw.push(bytes.splice(0, width))
+  let props = colors
+    .map((c, i) => {
+      if (arrEq(c, [255, 0, 0])) {
+        let x = i % width
+        let y = (i - x) / width
+        return [x, y]
+      }
+    })
+    .filter(c => c)
 
   fs.outputJson(output, {
-    map: tiles_raw,
-    data: analyse(tiles_raw)
+    map: roads_raw,
+    road: analyse(roads_raw),
+    props
   }, { spaces: args.pretty ? 2 : 0 })
 })
+
+function arrEq (a, b) {
+  return +(a.join() === b.join())
+}
