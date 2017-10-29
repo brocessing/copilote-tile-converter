@@ -14,10 +14,12 @@ $ npm i -g brocessing/copilote-tile-converter
 
 ## Table of correspondance
 
-| hex | type |
+| channel | type |
 | :--- | :--- |
-| `#000000` | road |
-| `#FF0000` | props |
+| `RED` | road |
+| `BLUE` | buildings |
+| `GREEN` | props |
+| `ALPHA` | n/a |
 
 <br>
 
