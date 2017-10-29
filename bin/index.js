@@ -26,8 +26,13 @@ PNG.decode(args.input, pixels => {
   }
 
   let roads = colors.map(c => +(c[0] === 255))
+  let roads_color = colors.map(c => +c[0])
   let roads_raw = []
-  while (roads.length > 0) roads_raw.push(roads.splice(0, width))
+  let roads_raw_color = []
+  while (roads.length > 0) {
+    roads_raw.push(roads.splice(0, width))
+    roads_raw_color.push(roads_color.splice(0, width))
+  }
 
   let buildings = colors.map((c, i) => {
     if (c[2] > 0) {
@@ -47,7 +52,7 @@ PNG.decode(args.input, pixels => {
 
   fs.outputJson(output, {
     map: roads_raw,
-    road: analyse(roads_raw),
+    road: analyse(roads_raw, roads_raw_color),
     buildings,
     props
   }, { spaces: args.pretty ? 2 : 0 })

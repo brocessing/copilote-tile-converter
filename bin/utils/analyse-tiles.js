@@ -2,7 +2,7 @@
 
 const isRoad = raw_tile => raw_tile !== 0
 
-module.exports = function (tiles_raw) {
+module.exports = function (tiles_raw, colors_raw) {
   const width = tiles_raw[0].length
   const height = tiles_raw.length
 
@@ -17,6 +17,7 @@ module.exports = function (tiles_raw) {
         let type = findType(neighbors)
 
         tiles[x + '.' + y] = {
+          c: colors_raw[y][x],
           p: [x, y],
           n: neighbors,
           t: type,
