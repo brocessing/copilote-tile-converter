@@ -33,7 +33,7 @@ PNG.decode(args.input, pixels => {
     if (c[2] > 0) {
       let x = i % width
       let y = (i - x) / width
-      return [x, y, parseFloat((c[2] / 255).toFixed(2))]
+      return [x, y, c[2]]
     }
   }).filter(c => c)
 
@@ -41,7 +41,7 @@ PNG.decode(args.input, pixels => {
     if (c[1] > 0) {
       let x = i % width
       let y = (i - x) / width
-      return [x, y, parseFloat((c[1] / 255).toFixed(2))]
+      return [x, y, c[1]]
     }
   }).filter(c => c)
 
