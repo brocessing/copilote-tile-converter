@@ -26,7 +26,7 @@ PNG.decode(args.input, pixels => {
   }
 
   let roads = colors.map(c => +(c[0] === 255))
-  let roads_color = colors.map(c => (255 - c[0]))
+  let roads_color = colors.map(c => +c[0])
   let roads_raw = []
   let roads_raw_color = []
   while (roads.length > 0) {
@@ -38,7 +38,7 @@ PNG.decode(args.input, pixels => {
     if (c[2] > 0) {
       let x = i % width
       let y = (i - x) / width
-      return [x, y, 255 - c[2]]
+      return [x, y, c[2]]
     }
   }).filter(c => c)
 
@@ -46,7 +46,7 @@ PNG.decode(args.input, pixels => {
     if (c[1] > 0) {
       let x = i % width
       let y = (i - x) / width
-      return [x, y, 255 - c[1]]
+      return [x, y, c[1]]
     }
   }).filter(c => c)
 
