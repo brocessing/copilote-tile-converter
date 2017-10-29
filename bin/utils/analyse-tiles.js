@@ -60,8 +60,8 @@ module.exports = function (tiles_raw) {
       case 4 : return 4
 
       case 2 : {
-        for (let i = 0; i < neighbors.length - 1; i++) {
-          if (neighbors[i] && neighbors[i + 1]) return 2
+        for (let i = 0; i < neighbors.length ; i++) {
+          if (neighbors[i] && neighbors[((i + 1) % (neighbors.length))]) return 2
         }
         return 1
       }
@@ -70,9 +70,11 @@ module.exports = function (tiles_raw) {
 
   function calcRotation (type, neighbors) {
     if (type === 0 || type === 1) {
-      // 0: vertical
-      // 1: horizontal
-      return +!(neighbors[0] || neighbors[2])
+      // 0: from bottom to top
+      if (neighbors[2]) return 0
+      if (neighbors[1]) return 1
+      if (neighbors[0]) return 2
+      if (neighbors[3]) return 3
     }
 
     if (type === 2) {
