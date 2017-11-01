@@ -16,13 +16,6 @@ function getNeighbor (tile, dir) {
   })
 }
 
-function createSVGPath (path) {
-  const sequence = path.map((point, i) => {
-    return `${i === 0 ? 'M' : 'L'} ${point[0] + 0.5} ${point[1] + 0.5}`
-  })
-  return `<path d="${sequence.join(' ')}"/>`
-}
-
 function directionsAreOnSameAxes (a, b) {
   return (Math.abs(a.x) && Math.abs(b.y)) || (Math.abs(a.y) && Math.abs(b.x))
 }
@@ -33,12 +26,12 @@ module.exports = function (tiles_raw, road) {
   const tiles = Object.values(road).map(tile => {
     return {
       ...tile,
-      end: tile.t === 0 || onBound(tile.p, { width, height })
+      end: tile.t === 0 || onBound(tile.p, { width, height }),
+      steps: 0
     }
   })
 
   const ends = tiles.filter(tile => tile.end)
-
   let paths = []
   ends.forEach(e => paths.push(walk(e)))
 
@@ -46,7 +39,11 @@ module.exports = function (tiles_raw, road) {
 
   function walk (currentTile, dir = null, path = []) {
     // if dir does not exist yet, then it is the first step in the walk
-    if (!dir) path.push(currentTile.p)
+    if (!dir) {
+      // the first step of the walk cannot be on a tile already stepped on
+      if (currentTile.steps > 0) return path
+      path.push(currentTile.p)
+    }
 
     // if dir already exists, then it is not the first step in the walk
     // if the current tile is flagged as an end, then stop the walk
@@ -71,7 +68,10 @@ module.exports = function (tiles_raw, road) {
     const nextTile = tiles.find(t => t.p[0] === currentTile.p[0] + dir.x && t.p[1] === currentTile.p[1] + dir.y)
 
     // if the next tile exist, walk on it
-    if (nextTile) return walk(nextTile, dir, path)
+    if (nextTile && nextTile.steps <= nextTile.t) {
+      nextTile.steps++
+      return walk(nextTile, dir, path)
+    }
 
     // if no next tile, then the walk is finished
     path.push(currentTile.p)
@@ -88,4 +88,12 @@ module.exports = function (tiles_raw, road) {
       .find(dir => inBound([tile.p[0] + dir.x, tile.p[1] + dir.y]))
   }
 
+  function createSVGPath (path) {
+    const sequence = path.map(([x, y], i) => {
+      let xoff = x === 0 ? 0 : (x === width - 1 ? 1 : 0.5)
+      let yoff = y === 0 ? 0 : (y === height - 1 ? 1 : 0.5)
+      return `${i === 0 ? 'M' : 'L'} ${x + xoff} ${y + yoff}`
+    })
+    return `<path d="${sequence.join(' ')}"/>`
+  }
 }
