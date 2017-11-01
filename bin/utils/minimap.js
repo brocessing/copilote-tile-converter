@@ -26,14 +26,17 @@ module.exports = function (tiles_raw, road) {
   const tiles = Object.values(road).map(tile => {
     return {
       ...tile,
-      end: tile.t === 0 || onBound(tile.p, { width, height }),
+      t: (onBound(tile.p, { width, height }) && tile.t === 1) ? 0 : tile.t,
       steps: 0
     }
   })
 
-  const ends = tiles.filter(tile => tile.end)
   let paths = []
-  ends.forEach(e => paths.push(walk(e)))
+  let ends = tiles.filter(tile => tile.t === 0)
+  while (ends.length) {
+    ends.forEach(e => paths.push(walk(e)))
+    ends = tiles.filter(t => t.t > 2 && t.steps < t.t)
+  }
 
   return paths.map(path => createSVGPath(path)).join('')
 
@@ -41,13 +44,13 @@ module.exports = function (tiles_raw, road) {
     // if dir does not exist yet, then it is the first step in the walk
     if (!dir) {
       // the first step of the walk cannot be on a tile already stepped on
-      if (currentTile.steps > 0) return path
+      if (currentTile.steps++ > currentTile.t) return path
       path.push(currentTile.p)
     }
 
     // if dir already exists, then it is not the first step in the walk
     // if the current tile is flagged as an end, then stop the walk
-    if (dir && currentTile.end) {
+    if (dir && currentTile.t === 0) {
       path.push(currentTile.p)
       return path
     }
@@ -68,7 +71,7 @@ module.exports = function (tiles_raw, road) {
     const nextTile = tiles.find(t => t.p[0] === currentTile.p[0] + dir.x && t.p[1] === currentTile.p[1] + dir.y)
 
     // if the next tile exist, walk on it
-    if (nextTile && nextTile.steps <= nextTile.t) {
+    if (nextTile && nextTile.steps < nextTile.t) {
       nextTile.steps++
       return walk(nextTile, dir, path)
     }
