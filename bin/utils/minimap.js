@@ -23,6 +23,10 @@ function createSVGPath (path) {
   return `<path d="${sequence.join(' ')}"/>`
 }
 
+function directionsAreOnSameAxes (a, b) {
+  return (Math.abs(a.x) && Math.abs(b.y)) || (Math.abs(a.y) && Math.abs(b.x))
+}
+
 module.exports = function (tiles_raw, road) {
   const width = tiles_raw[0].length
   const height = tiles_raw.length
@@ -42,9 +46,7 @@ module.exports = function (tiles_raw, road) {
 
   function walk (currentTile, dir = null, path = []) {
     // if dir does not exist yet, then it is the first step in the walk
-    if (!dir) {
-      path.push(currentTile.p)
-    }
+    if (!dir) path.push(currentTile.p)
 
     // if dir already exists, then it is not the first step in the walk
     // if the current tile is flagged as an end, then stop the walk
@@ -62,9 +64,7 @@ module.exports = function (tiles_raw, road) {
       path.push(currentTile.p)
       dir = currentTile.n
         .map((n, i) => +n && calcNeighborDirection(i))
-        .find(d => {
-          return (Math.abs(dir.x) && Math.abs(d.y)) || (Math.abs(dir.y) && Math.abs(d.x))
-        })
+        .find(d => directionsAreOnSameAxes(dir, d))
     }
 
     // the next tile is the current tile + the direction
@@ -78,17 +78,14 @@ module.exports = function (tiles_raw, road) {
     return path
   }
 
-  function onBound ([x, y]) {
-    return x === 0 || y === 0 || x === width - 1 || y === height - 1
-  }
+  function inBound ([x, y]) { return x >= 0 && y >= 0 && x < width && y < height }
+  function onBound ([x, y]) { return x === 0 || y === 0 || x === width - 1 || y === height - 1 }
 
   function chooseInitialDirection (tile) {
     return tile.n
       .map((n, i) => +n && calcNeighborDirection(i))
       .filter(n => n)
-      .find(dir => {
-        return tile.p[0] + dir.x >= 0 && tile.p[1] + dir.y >= 0 && tile.p[0] + dir.x < width && tile.p[1] + dir.y < height
-      })
+      .find(dir => inBound([tile.p[0] + dir.x, tile.p[1] + dir.y]))
   }
 
 }
