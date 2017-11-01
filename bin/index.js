@@ -6,6 +6,7 @@ const fs = require('fs-extra')
 const size = require('image-size')
 const PNG = require('png-js')
 const analyse = require(path.join(__dirname, 'utils', 'analyse-tiles'))
+const minimap = require(path.join(__dirname, 'utils', 'minimap'))
 
 const args = require(path.join(__dirname, 'utils', 'args'))
 const output = args.output || args.input.replace('.png', '.json')
@@ -50,9 +51,11 @@ PNG.decode(args.input, pixels => {
     }
   }).filter(c => c)
 
+  let roads_analysed = analyse(roads_raw, roads_raw_color)
   fs.outputJson(output, {
+    svg: minimap(roads_raw, roads_analysed),
     map: roads_raw,
-    road: analyse(roads_raw, roads_raw_color),
+    road: roads_analysed,
     buildings,
     props
   }, { spaces: args.pretty ? 2 : 0 })
