@@ -1,6 +1,6 @@
 {
   "name": "copilote-tile-converter",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "description": "generate copilote road tiles from a png",
   "main": "index.js",
   "bin": {
