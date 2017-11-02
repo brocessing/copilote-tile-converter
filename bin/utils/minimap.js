@@ -93,8 +93,8 @@ module.exports = function (tiles_raw, road) {
 
   function createSVGPath (path) {
     const sequence = path.map(([x, y], i) => {
-      let xoff = x === 0 ? 0 : (x === width - 1 ? 1 : 0.5)
-      let yoff = y === 0 ? 0 : (y === height - 1 ? 1 : 0.5)
+      let xoff = x === 0 ? -0.01 : (x === width - 1 ? 1.01 : 0.5)
+      let yoff = y === 0 ? -0.01 : (y === height - 1 ? 1.01 : 0.5)
       return `${i === 0 ? 'M' : 'L'} ${x + xoff} ${y + yoff}`
     })
     return `<path d="${sequence.join(' ')}"/>`
