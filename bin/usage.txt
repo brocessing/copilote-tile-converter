@@ -10,5 +10,6 @@ Options:
   -h, --help              Show this screen.
   -i, --input <path>      Specify the png file to convert from.
   -o, --output <path>     Specify the json file to output to.
+  -s, --svg               Export svg file of the minimap as well.
   -p, --pretty            Add spaces and line breaks to the json.
   -v, --version           Print the current version.

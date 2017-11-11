@@ -4,7 +4,7 @@ const fs = require('fs-extra')
 const path = require('path')
 const minimist = require('minimist')
 const minimistOpts = {
-  boolean: ['help', 'version', 'pretty'],
+  boolean: ['help', 'version', 'pretty', 'svg'],
   string: ['input', 'output'],
   alias: {
     help: ['h'],
@@ -12,6 +12,7 @@ const minimistOpts = {
     output: ['o'],
     pretty: ['p'],
     version: ['v'],
+    svg: ['s']
   }
 }
 

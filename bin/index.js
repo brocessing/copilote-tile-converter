@@ -35,28 +35,35 @@ PNG.decode(args.input, pixels => {
     roads_raw_color.push(roads_color.splice(0, width))
   }
 
-  let buildings = colors.map((c, i) => {
+  const buildings = colors.map((c, i) => {
     if (c[2] > 0) {
-      let x = i % width
-      let y = (i - x) / width
+      const x = i % width
+      const y = (i - x) / width
       return [x, y, Math.floor(c[2] / 10)]
     }
   }).filter(c => c)
 
-  let props = colors.map((c, i) => {
+  const props = colors.map((c, i) => {
     if (c[1] > 0) {
-      let x = i % width
-      let y = (i - x) / width
+      const x = i % width
+      const y = (i - x) / width
       return [x, y, Math.floor(c[1] / 10)]
     }
   }).filter(c => c)
 
-  let roads_analysed = analyse(roads_raw, roads_raw_color)
+  const roads_analysed = analyse(roads_raw, roads_raw_color)
+  const minimapPaths = minimap(roads_raw, roads_analysed)
+
   fs.outputJson(output, {
-    svg: minimap(roads_raw, roads_analysed),
+    svg: minimapPaths,
     map: roads_raw,
     road: roads_analysed,
     buildings,
     props
   }, { spaces: args.pretty ? 2 : 0 })
+
+  if (args.svg) {
+    const svg = `<svg viewBox='-0.01 -0.01 ${width + 0.01} ${height + 0.01}'>${minimapPaths}</svg>`
+    fs.outputFile(output.replace('.json', '.svg'), svg)
+  }
 })
