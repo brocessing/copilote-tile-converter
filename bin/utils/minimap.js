@@ -24,38 +24,33 @@ module.exports = function (tiles_raw, road) {
   const width = tiles_raw[0].length
   const height = tiles_raw.length
   const tiles = Object.values(road).map(tile => {
+    // in a single chunk context, onBound straight lines are deadends
+    const t = (tile.t === 1 && onBound(tile.p, { width, height })) ? 0 : tile.t
     return {
       ...tile,
-      t: (onBound(tile.p, { width, height }) && tile.t === 1) ? 0 : tile.t,
-      steps: 0
+      // paths ends are either deadends (t0) or T (t3)
+      end: t === 0 || t === 3,
+      t
     }
   })
 
   let paths = []
-  let ends = tiles.filter(tile => tile.t === 0)
-  while (ends.length) {
-    ends.forEach(e => paths.push(walk(e)))
-    ends = tiles.filter(t => t.t > 2 && t.steps < t.t)
-  }
+  tiles.filter(tile => tile.end).forEach(e => paths.push(walk(e)))
 
   return paths.map(path => createSVGPath(path)).join('')
 
   function walk (currentTile, dir = null, path = []) {
-    // if dir does not exist yet, then it is the first step in the walk
-    if (!dir) {
-      // the first step of the walk cannot be on a tile already stepped on
-      if (currentTile.steps++ > currentTile.t) return path
-      path.push(currentTile.p)
-    }
+    // immediately stop the walk if the first tile has already been done
+    if (!dir && currentTile.end && currentTile.done) return []
 
-    // if dir already exists, then it is not the first step in the walk
-    // if the current tile is flagged as an end, then stop the walk
-    if (dir && currentTile.t === 0) {
-      path.push(currentTile.p)
+    path.push(currentTile.p)
+
+    // stop the walk if the tile is a deadend, only if it is not the first step
+    if (dir && currentTile.end && currentTile.t === 0) {
+      currentTile.done = true
       return path
     }
 
-    // if dir does not exist yet, choose a direction
     dir = dir || chooseInitialDirection(currentTile)
 
     // if the current tile is a turn, then change the direction to point
@@ -71,13 +66,10 @@ module.exports = function (tiles_raw, road) {
     const nextTile = tiles.find(t => t.p[0] === currentTile.p[0] + dir.x && t.p[1] === currentTile.p[1] + dir.y)
 
     // if the next tile exist, walk on it
-    if (nextTile && nextTile.steps < nextTile.t) {
-      nextTile.steps++
-      return walk(nextTile, dir, path)
-    }
+    if (nextTile) return walk(nextTile, dir, path)
 
     // if no next tile, then the walk is finished
-    path.push(currentTile.p)
+    currentTile.done = true
     return path
   }
 
@@ -85,10 +77,22 @@ module.exports = function (tiles_raw, road) {
   function onBound ([x, y]) { return x === 0 || y === 0 || x === width - 1 || y === height - 1 }
 
   function chooseInitialDirection (tile) {
-    return tile.n
-      .map((n, i) => +n && calcNeighborDirection(i))
-      .filter(n => n)
-      .find(dir => inBound([tile.p[0] + dir.x, tile.p[1] + dir.y]))
+    // for a T, the initial direction is the "trunk" of the T
+    if (tile.t == 3) {
+      switch (tile.r) {
+        case 0: return { x: 1, y: 0 }
+        case 1: return { x: 0, y: -1 }
+        case 2: return { x: -1, y: 0 }
+        case 3: return { x: 0, y: 1 }
+      }
+    }
+
+    if (tile.t === 0 || tile.t === 1) {
+      return tile.n
+        .map((n, i) => +n && calcNeighborDirection(i))
+        .filter(n => n)
+        .find(dir => inBound([tile.p[0] + dir.x, tile.p[1] + dir.y]))
+    }
   }
 
   function createSVGPath (path) {
