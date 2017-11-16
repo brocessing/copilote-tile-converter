@@ -14,6 +14,8 @@ const output = args.output || args.input.replace('.png', '.json')
 const { width, height } = size(args.input)
 
 PNG.decode(args.input, pixels => {
+  console.time(args.input)
+
   /**
    * @NOTE:
    * pixels = [r,g,b,a,r,g,b,a]
@@ -66,4 +68,6 @@ PNG.decode(args.input, pixels => {
     const svg = `<svg viewBox='-0.01 -0.01 ${width + 0.01} ${height + 0.01}'>${minimapPaths}</svg>`
     fs.outputFile(output.replace('.json', '.svg'), svg)
   }
+
+  console.timeEnd(args.input)
 })
